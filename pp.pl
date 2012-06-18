@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use DBI;
 use Date::Calc qw(Day_of_Week Today);
+use CGI qw/:standard/;
 
 my $my_cnf = '/secret/my_cnf.cnf';
 
@@ -19,6 +20,7 @@ my $sth=$dbh->prepare($sql);
 $sth->execute();
 
 my %db;
+my %values; #to prettify with html
 
 while(my @line=$sth->fetchrow_array()){
 
@@ -27,6 +29,8 @@ while(my @line=$sth->fetchrow_array()){
 	my $dow=Day_of_Week($1,$2,$3);
 
 	$db{$4}{$dow}=@number_of_players;
+	$values{@number_of_players}="";
+
 }
 
 my $dow_today = Day_of_Week(Today);
@@ -41,9 +45,71 @@ my %dow_order=(
 	1 => [1,2,3,4,5,6,7],
 );
 
-foreach my $hour (sort keys %db){
-	foreach my $dow (@{$dow_order{$dow_today}}){
-		printf("%03d", $db{$hour}{$dow}); print " ";
-	}
-	print "\n";
+#foreach my $hour (sort keys %db){
+#	foreach my $dow (@{$dow_order{$dow_today}}){
+#		printf("%03d", $db{$hour}{$dow}); print " ";
+#	}
+#	print "\n";
+#}
+
+my @values = reverse sort {$a <=> $b} keys(%values);
+my $num_values=@values;
+
+my($high,$medium,$low);
+
+if($num_values >= 9){
+	$high="$values[0]|$values[1]|$values[2]";
+	$medium="$values[3]|$values[4]|$values[5]";
+	$low="$values[6]|$values[7]|$values[8]";
+}elsif($num_values >= 3){
+	$high=$values[0];
+	$medium=$values[1];
+	$low=$values[2];
+}else{
+#dont bother coloring
+	$high="dont bother";
+	$medium="dont bother";
+	$low="dont bother";
 }
+
+my %human_readable_dow = (
+	1 => 'Mon',
+	2 => 'Tue',
+	3 => 'Wed',
+	4 => 'Thu',
+	5 => 'Fri',
+	6 => 'Sat',
+	7 => 'Sun',
+);
+
+print header,start_html;
+
+my $localtime=localtime();
+
+print "<h3>current servertime is: $localtime</h3>";
+
+print "<table border=1><tr><th>hour</th>";
+foreach my $dow (@{$dow_order{$dow_today}}){
+	print "<th>$human_readable_dow{$dow}</th>";
+}
+print "</tr>\n";
+
+
+foreach my $hour (sort keys %db){
+	print "<tr><td>$hour</td>";
+	foreach my $dow (@{$dow_order{$dow_today}}){
+		if($db{$hour}{$dow}=~/$high/){
+			print "<td bgcolor=red>$db{$hour}{$dow}</td>";
+		}elsif($db{$hour}{$dow}=~/$medium/){
+			print "<td bgcolor=orange>$db{$hour}{$dow}</td>";
+		}elsif($db{$hour}{$dow}=~/$low/){
+			print "<td bgcolor=yellow>$db{$hour}{$dow}</td>";
+		}else{
+			print "<td>$db{$hour}{$dow}</td>";
+		}
+	}
+	print "</tr>\n";
+}
+print "</table>";
+
+print end_html;
