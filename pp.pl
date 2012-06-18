@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use DBI;
-use Date::Calc qw(Day_of_Week);
+use Date::Calc qw(Day_of_Week Today);
 
 my $my_cnf = '/secret/my_cnf.cnf';
 
@@ -14,7 +14,7 @@ my $dbh = DBI->connect("DBI:mysql:"
                         undef
                         ) or die "something went wrong ($DBI::errstr)";
 
-my $sql ="SELECT * from currentplayers where date_sub(curdate(),interval 6 day) <= timestamp";
+my $sql ="SELECT * from currentplayers where timestamp > date_sub(current_date, interval 7 day) AND timestamp < current_date";
 my $sth=$dbh->prepare($sql);
 $sth->execute();
 
@@ -23,16 +23,26 @@ my %db;
 while(my @line=$sth->fetchrow_array()){
 
 	$line[1]=~/(\d+)-(\d+)-(\d+) (\d+):/;
-	print "$line[1]\n";
 	my @number_of_players=split(/ /,$line[2]);
 	my $dow=Day_of_Week($1,$2,$3);
 
 	$db{$4}{$dow}=@number_of_players;
 }
 
+my $dow_today = Day_of_Week(Today);
+
+my %dow_order=(
+	2 => [2,3,4,5,6,7,1],
+	3 => [3,4,5,6,7,1,2],
+	4 => [4,5,6,7,1,2,3],
+	5 => [5,6,7,1,2,3,4],
+	6 => [6,7,1,2,3,4,5],
+	7 => [7,1,2,3,4,5,6],
+	1 => [1,2,3,4,5,6,7],
+);
 
 foreach my $hour (sort keys %db){
-	foreach my $dow (sort keys $db{$hour}){
+	foreach my $dow (@{$dow_order{$dow_today}}){
 		printf("%03d", $db{$hour}{$dow}); print " ";
 	}
 	print "\n";
