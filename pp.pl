@@ -21,6 +21,7 @@ $sth->execute();
 
 my %db;
 my %values; #to prettify with html
+my %save_date;
 
 while(my @line=$sth->fetchrow_array()){
 
@@ -30,6 +31,8 @@ while(my @line=$sth->fetchrow_array()){
 
 	$db{$4}{$dow}=@number_of_players;
 	$values{@number_of_players}="";
+
+	$save_date{$dow}="$1-$2-$3";
 
 }
 
@@ -90,7 +93,7 @@ print "<h3>current servertime is: $localtime</h3>";
 
 print "<table border=1><tr><th>hour</th>";
 foreach my $dow (@{$dow_order{$dow_today}}){
-	print "<th>$human_readable_dow{$dow}</th>";
+	print "<th>$save_date{$dow} ($human_readable_dow{$dow})</th>";
 }
 print "</tr>\n";
 
