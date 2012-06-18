@@ -14,7 +14,7 @@ my $dbh = DBI->connect("DBI:mysql:"
                         undef
                         ) or die "something went wrong ($DBI::errstr)";
 
-my $sql ="SELECT * from currentplayers where date_sub(curdate(),interval 7 day) <= timestamp";
+my $sql ="SELECT * from currentplayers where date_sub(curdate(),interval 6 day) <= timestamp";
 my $sth=$dbh->prepare($sql);
 $sth->execute();
 
@@ -23,6 +23,7 @@ my %db;
 while(my @line=$sth->fetchrow_array()){
 
 	$line[1]=~/(\d+)-(\d+)-(\d+) (\d+):/;
+	print "$line[1]\n";
 	my @number_of_players=split(/ /,$line[2]);
 	my $dow=Day_of_Week($1,$2,$3);
 
