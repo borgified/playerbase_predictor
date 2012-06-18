@@ -5,6 +5,7 @@ use warnings;
 use DBI;
 use Date::Calc qw(Day_of_Week Today);
 use CGI qw/:standard/;
+use POSIX;
 
 my $my_cnf = '/secret/my_cnf.cnf';
 
@@ -87,9 +88,7 @@ my %human_readable_dow = (
 
 print header,start_html;
 
-my $localtime=localtime();
-
-print "<h3>current servertime is: $localtime</h3>";
+print "<h3>current servertime is: ", scalar localtime," ",strftime("%Z",localtime), "</h3>";
 
 print "<table border=1><tr><th>hour</th>";
 foreach my $dow (@{$dow_order{$dow_today}}){
