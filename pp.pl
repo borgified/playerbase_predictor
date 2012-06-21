@@ -21,16 +21,19 @@ my $sth=$dbh->prepare($sql);
 $sth->execute();
 
 my %db;
+my %db1;
 my %values; #to prettify with html
 my %save_date;
 
 while(my @line=$sth->fetchrow_array()){
 
+	print "@line\n";
 	$line[1]=~/(\d+)-(\d+)-(\d+) (\d+):/;
 	my @number_of_players=split(/ /,$line[2]);
 	my $dow=Day_of_Week($1,$2,$3);
 
 	$db{$4}{$dow}=@number_of_players;
+	$db1{$4}{$dow}{'callsigns'}="$line[2]";
 	$values{@number_of_players}="";
 
 	$save_date{$dow}="$1-$2-$3";
@@ -96,16 +99,17 @@ foreach my $dow (@{$dow_order{$dow_today}}){
 }
 print "</tr>\n";
 
+#<a onmouseover="popup('Lorem ipsum dolor sit ...');" href='somewhere.html'>some text</a>
 
 foreach my $hour (sort keys %db){
 	print "<tr><td>$hour</td>";
 	foreach my $dow (@{$dow_order{$dow_today}}){
 		if($db{$hour}{$dow}=~/$high/){
-			print "<td bgcolor=red>$db{$hour}{$dow}</td>";
+			print "<td bgcolor=red><a href='' title=\"$db1{$hour}{$dow}{'callsigns'}\">$db{$hour}{$dow}</a></td>";
 		}elsif($db{$hour}{$dow}=~/$medium/){
-			print "<td bgcolor=orange>$db{$hour}{$dow}</td>";
+			print "<td bgcolor=orange><a href='' title=\"$db1{$hour}{$dow}{'callsigns'}\">$db{$hour}{$dow}</a></td>";
 		}elsif($db{$hour}{$dow}=~/$low/){
-			print "<td bgcolor=yellow>$db{$hour}{$dow}</td>";
+			print "<td bgcolor=yellow><a href='' title=\"$db1{$hour}{$dow}{'callsigns'}\">$db{$hour}{$dow}</a></td>";
 		}else{
 			print "<td>$db{$hour}{$dow}</td>";
 		}
