@@ -4,4 +4,4 @@ playerbase_predictor
 predicts when games are played on alleg
 
 
-watch it in action: http://localhost/cgi-bin/pp.pl
+watch it in action: <a href="http://spathiwa.com/cgi-bin/pp.pl">http://spathiwa.com/cgi-bin/pp.pl</a>
