@@ -1,11 +1,14 @@
 package PlayerbasePredictor;
-use base "Exporter";
 use strict;
 use warnings;
 use DBI;
 use Date::Calc qw(Day_of_Week Today);
 use CGI qw/:standard/;
 use POSIX;
+
+use Exporter qw(import);
+our @EXPORT_OK = qw(getdb getdow_order getdow_today);
+
 
 my $my_cnf = '/secret/my_cnf.cnf';
 
@@ -27,7 +30,7 @@ my %save_date;
 
 while(my @line=$sth->fetchrow_array()){
 
-	print "@line\n";
+#	print "@line\n";
 	$line[1]=~/(\d+)-(\d+)-(\d+) (\d+):/;
 	my @number_of_players=split(/ /,$line[2]);
 	my $dow=Day_of_Week($1,$2,$3);
@@ -88,6 +91,24 @@ my %human_readable_dow = (
 	6 => 'Sat',
 	7 => 'Sun',
 );
+
+####helper functions
+
+sub getdb{
+	return \%db;
+}
+
+sub getdow_order{
+	return \%dow_order;
+}
+
+sub getdow_today{
+	return $dow_today;
+}
+
+1;
+
+__END__
 
 print header,start_html;
 
