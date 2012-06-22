@@ -27,7 +27,7 @@ my %save_date;
 
 while(my @line=$sth->fetchrow_array()){
 
-	print "@line\n";
+#	print "@line\n";
 	$line[1]=~/(\d+)-(\d+)-(\d+) (\d+):/;
 	my @number_of_players=split(/ /,$line[2]);
 	my $dow=Day_of_Week($1,$2,$3);
