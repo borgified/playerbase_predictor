@@ -10,7 +10,7 @@ use Cwd qw(abs_path);
 use lib (dirname abs_path $0) . '/';
 use PlayerbasePredictor qw(getdb getdow_order getdow_today);
 
-my $data="['Hour','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Average'],\n";
+my $data="['Hour','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','WkDay Avg'],\n";
 
 my $db=&getdb;
 my $dow_order=&getdow_order;
@@ -27,7 +27,7 @@ foreach my $hour (sort keys %{$db}){
 	$hhour=~ s/^0//;
 
 	$data=$data."[$hhour,";
-	my $avg;
+	my $wkdayavg;
 	foreach my $dow (1..7){
 		if($dow == 7){
 			$data=$data."$b{$hour}{$dow}";
@@ -35,9 +35,12 @@ foreach my $hour (sort keys %{$db}){
 			$data=$data."$b{$hour}{$dow},";
 		}
 		#print "$dow,";
-		$avg=$avg+$b{$hour}{$dow};
+		if($dow<6){
+			$wkdayavg=$wkdayavg+$b{$hour}{$dow};
+		}
 	}
-	$data=$data.",$avg/7],\n";
+	$wkdayavg=$wkdayavg/5;
+	$data=$data.",$wkdayavg],\n";
 }
 
 
@@ -67,7 +70,7 @@ $data
           vAxis: {title: "# of Players"},
           hAxis: {title: "Hour (UTC)"},
           seriesType: "bars",
-	  series: {7: {type: "line"}}
+	  series: {7: {type: "line"}},
         };
 
         var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
@@ -77,7 +80,7 @@ $data
     </script>
   </head>
   <body>
-    <div id="chart_div" style="width: 1800px; height: 500px;"></div>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
   </body>
 </html>
 HTML
