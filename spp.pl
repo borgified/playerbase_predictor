@@ -65,7 +65,7 @@ $data
         var options = {
           title : 'Allegiance Player Playing Pattern',
           vAxis: {title: "# of Players"},
-          hAxis: {title: "Hour"},
+          hAxis: {title: "Hour (UTC)"},
           seriesType: "bars",
 	  series: {7: {type: "line"}}
         };

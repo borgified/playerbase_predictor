@@ -57,7 +57,7 @@ $data
         var options = {
           title: 'Allegiance Player Playing Patterns',
 	  vAxis: {title: '# of players'},
-	  hAxis: {title: 'Hour',},
+	  hAxis: {title: 'Hour (UTC)',},
 	}
 
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
