@@ -66,7 +66,7 @@ $data
     </script>
   </head>
   <body>
-    <div id="chart_div" style="width: 1800px; height: 500px;"></div>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
   </body>
 </html>
 HTML
