@@ -74,6 +74,7 @@ $data
         ]);
 
         var options = {
+	  backgroundColor: {fill:'transparent'},
           title: 'Allegiance Player Playing Patterns (past 30 days)',
           vAxis: {title: '# of players', textPosition: 'none', },
           hAxis: {title: 'Hour (UTC)', gridlines: {color: '#333', count: 24}, },
