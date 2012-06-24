@@ -96,7 +96,7 @@ print <<HTML;
             if(currentHour > 23)
                 currentHour -= 24;
             
-            dataArray[currentHour + 1][0] = i;        
+            dataArray[currentHour + 1][0] = i+':00';        
             output[i + 1] = dataArray[currentHour + 1];
         }
         
@@ -111,11 +111,11 @@ $data
 
         var options = {
 			curveType: 'function',
-	  backgroundColor: {fill:'transparent'},
-          title: 'Allegiance Player Playing Patterns (past 30 days)',
-          vAxis: {title: '# of players', textPosition: 'none', },
+	  		backgroundColor: {fill:'transparent'},
+          	title: 'Allegiance Player Playing Patterns (past 30 days)',
+          	vAxis: {title: '# of players', textPosition: 'none',},
 // BT - Added user's local timezone name.
-          hAxis: {title: 'Hour (' + timezone.name() + ')', gridlines: {color: '#333', count: 24}, },
+          	hAxis: {title: 'Hour (' + timezone.name() + ')', gridlines: {color: '#333', count: 24}, slantedText: true, slantedTextAngle: 90, showTextEvery: 1, textStyle: {color: 'black', fontName: 'Arial', fontSize: 12}, },
         }
 
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
@@ -141,7 +141,7 @@ $data
     </script>
   </head>
   <body>
-    <div id="chart_div" style="width: 300px; height: 100px;"></div>
+    <div id="chart_div" style="width: 300px; height: 150px;"></div>
   </body>
 </html>
 HTML
