@@ -53,8 +53,8 @@ foreach my $hour (sort keys %db){
 	}
 #	print "$hour weekday avg: ",$dacc/$d,"\n";
 #	print "$hour weekend avg: ",$eacc/$e,"\n";
-	my $a=$dacc/$d;
-	my $b=$eacc/$e;
+	my $a=sprintf("%.1f",$dacc/$d);
+	my $b=sprintf("%.1f",$eacc/$e);
 	$hour=~s/\b0//;
 	$data=$data."[$hour,$a,$b],\n";
 }
@@ -110,6 +110,7 @@ $data
         ]));
 
         var options = {
+			curveType: 'function',
 	  backgroundColor: {fill:'transparent'},
           title: 'Allegiance Player Playing Patterns (past 30 days)',
           vAxis: {title: '# of players', textPosition: 'none', },

@@ -53,8 +53,8 @@ foreach my $hour (sort keys %db){
 	}
 #	print "$hour weekday avg: ",$dacc/$d,"\n";
 #	print "$hour weekend avg: ",$eacc/$e,"\n";
-	my $a=$dacc/$d;
-	my $b=$eacc/$e;
+	my $a=sprintf("%.1f",$dacc/$d);
+	my $b=sprintf("%.1f",$eacc/$e);
 	$hour=~s/\b0//;
 	$data=$data."[$hour,$a,$b],\n";
 }
@@ -96,7 +96,7 @@ print <<HTML;
             if(currentHour > 23)
                 currentHour -= 24;
             
-            dataArray[currentHour + 1][0] = i;        
+            dataArray[currentHour + 1][0] = i+':00';        
             output[i + 1] = dataArray[currentHour + 1];
         }
         
@@ -110,11 +110,12 @@ $data
         ]));
 
         var options = {
-	  backgroundColor: {fill:'transparent'},
-          title: 'Allegiance Player Playing Patterns (past 30 days)',
-          vAxis: {title: '# of players', textPosition: 'none', },
+			curveType: 'function',
+	  		backgroundColor: {fill:'transparent'},
+          	title: 'Allegiance Player Playing Patterns (past 30 days)',
+          	vAxis: {title: '# of players', textPosition: 'none',},
 // BT - Added user's local timezone name.
-          hAxis: {title: 'Hour (' + timezone.name() + ')', gridlines: {color: '#333', count: 24}, },
+          	hAxis: {title: 'Hour (' + timezone.name() + ')', gridlines: {color: '#333', count: 24}, slantedText: true, slantedTextAngle: 90, showTextEvery: 1, textStyle: {color: 'black', fontName: 'Arial', fontSize: 12}, },
         }
 
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
