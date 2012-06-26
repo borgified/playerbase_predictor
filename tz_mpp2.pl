@@ -31,23 +31,28 @@ while(my @line=$sth->fetchrow_array()){
 }
 
 my %results;
-my $data="['Hour','M-Sa Avg','Sunday Avg'],\n";
+my $data="['Hour','Weekday Avg','Saturday Avg','Sunday Avg'],\n";
 #my $rawdata="";
 
 foreach my $hour (sort keys %db){
 	my $d=0;
 	my $e=0;
+	my $f=0;
 	my $dacc=0;
 	my $eacc=0;
+	my $facc=0;
 	foreach my $dow (sort keys %{$db{$hour}}){
 		foreach my $day (sort keys %{$db{$hour}{$dow}}){
 			#$rawdata=$rawdata."hour: $hour dow: $dow day: $day $db{$hour}{$dow}{$day}\n";
-			if($dow < 7){
+			if($dow < 6){
 				$d++;
 				$dacc=$dacc+$db{$hour}{$dow}{$day};
-			}else{
+			}elsif($dow == 6){
 				$e++;
 				$eacc=$eacc+$db{$hour}{$dow}{$day};
+			}else{
+				$f++;
+				$facc=$facc+$db{$hour}{$dow}{$day};
 			}
 		}
 	}
@@ -55,8 +60,9 @@ foreach my $hour (sort keys %db){
 #	print "$hour weekend avg: ",$eacc/$e,"\n";
 	my $a=sprintf("%.1f",$dacc/$d);
 	my $b=sprintf("%.1f",$eacc/$e);
+	my $c=sprintf("%.1f",$facc/$f);
 	$hour=~s/\b0//;
-	$data=$data."[$hour,$a,$b],\n";
+	$data=$data."[$hour,$a,$b,$c],\n";
 }
 
 
