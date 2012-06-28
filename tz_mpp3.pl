@@ -73,8 +73,10 @@ foreach my $hour (sort {$a <=> $b} keys %db){
 	my $c=sprintf("%.1f",$facc/$f);
 	#$hour=~s/\b0//;
 	$hour=$hour.':00';
-	$data=$data."[\'$hour\',$a,$b,$c],\n";
+	$data=$data."[\'$hour\',$a,$b,$c],";
 }
+
+$data=~s/\,$//;
 
 
 if($offset=~/\-\d+/){
