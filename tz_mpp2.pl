@@ -259,7 +259,7 @@ and all the folks who provided feedback (and convinced me to graph it) on this <
 
 other versions of this program
 <a href="http://spathiwa.com/cgi-bin/pp.pl">original table version</a> (only shows 1 week\'s worth of data)
-<a href="http://spathiwa.com/pp/">timezone adjustment at input + auto timezone detect</a> (uses monthly set of data)
+<a href="http://spathiwa.com/pp/">timezone adjustment at input + timezone autodetect</a> (uses monthly set of data)
 <a href="http://spathiwa.com/cgi-bin/tz_mpp2.pl">centered around sg time (19:00 UTC on Sunday = midnight)</a> (uses monthly set of data)
 </pre>
   </body>
