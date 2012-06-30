@@ -175,11 +175,10 @@ Special thanks to these contributors:
 BackTrak - client side timezone shifting
 and all the folks who provided feedback (and convinced me to graph it) on this <a href="http://www.freeallegiance.org/forums/index.php?showtopic=66568">thread</a>
 
-older versions of this program
-<a href="http://spathiwa.com/cgi-bin/pp.pl">version 1</a> (only shows 1 week's worth of data)
-<a href="http://spathiwa.com/cgi-bin/gpp.pl">version 2</a> (only shows 1 week's worth of data)
-<a href="http://spathiwa.com/cgi-bin/spp.pl">version 3</a> (only shows 1 week's worth of data)
-<a href="http://spathiwa.com/cgi-bin/mpp.pl">version 4</a> (uses monthly set of data)
+other versions of this program
+<a href="http://spathiwa.com/cgi-bin/pp.pl">original table version</a> (only shows 1 week\'s worth of data)
+<a href="http://spathiwa.com/pp/">timezone adjustment at input + auto timezone detect</a> (uses monthly set of data)
+<a href="http://spathiwa.com/cgi-bin/tz_mpp2.pl">centered around sg time (19:00 UTC on Sunday = midnight)</a> (uses monthly set of data)
 </pre>
   </body>
 </html>
