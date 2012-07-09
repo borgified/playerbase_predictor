@@ -22,7 +22,7 @@ $sth->execute();
 my %db;
 my $i=0;
 
-my $offset=$ARGV[0]; #remember to sanitize
+my $offset=param('offset');
 
 $offset =~ s/[^0-9,-]//go;
 
@@ -95,61 +95,69 @@ print <<HTML;
 <!-- BT - Added to support user's local timezone.
             http://www.pageloom.com/automatic-timezone-detection-with-javascript -->
     <script type="text/javascript" src="http://cdn.bitbucket.org/pellepim/jstimezonedetect/downloads/jstz.min.js"></script>
-    
+
     <!-- BT - Added to support display of user's local timezone. -->
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
 
+      // http://paulgueller.com/2011/04/26/parse-the-querystring-with-jquery/
+      jQuery.extend({
+          parseQuerystring: function(){
+            var nvpair = {};
+            var qs = window.location.search.replace('?', '');
+            var pairs = qs.split('&');
+            \$.each(pairs, function(i, v){
+              var pair = v.split('=');
+              nvpair[pair[0]] = pair[1];
+            });
+            return nvpair;
+          }
+        });
+        
+        // http://www.mresoftware.com/simpleDST.htm
+        function isLocalTimeDST()
+        {
+            var today = new Date;
+            var yr = today.getFullYear();
+            var jan = new Date(yr,0);    // January 1
+            var jul = new Date(yr,6);    // July 1
+            // northern hemisphere test
+            if (jan.getTimezoneOffset() > jul.getTimezoneOffset() && today.getTimezoneOffset() != jan.getTimezoneOffset()){
+                return true;
+                }
+            // southern hemisphere test    
+            if (jan.getTimezoneOffset() < jul.getTimezoneOffset() && today.getTimezoneOffset() != jul.getTimezoneOffset()){
+                return true;
+                }
+            // if we reach this point, DST is not in effect on the client computer.    
+            return false;
+        }
+
+      
+      
 // BT - Use jstz to get user's local timezone (see comment above about jstz).
       var timezone = jstz.determine();
 
-      // BT - Date shift chart data to user's local timezone.
-      function fixTimezone(dataArray) {
-        var timezoneOffsetHours = new Date().getTimezoneOffset() / 60;
-        var shiftHours = timezoneOffsetHours;
-        
-        var output = new Array();
-        output[0] = dataArray[0];
-        
-        if(timezoneOffsetHours < 0)
-            timezoneOffsetHours = 23 + timezoneOffsetHours;
-            
-        for(var i = 0; i < 24; i++) {
-            var currentHour = timezoneOffsetHours + i;
-            
-            if(currentHour > 23)
-                currentHour -= 24;
-            
-            dataArray[currentHour + 1][0] = i+':00';        
-            output[i + 1] = dataArray[currentHour + 1];
-        }
-        
-        return output;
-      }
-
       function drawChart() {
-// BT - Added fixTimezone function to dateshift the chart data.
-//        var data = google.visualization.arrayToDataTable(fixTimezone([
         var data = google.visualization.arrayToDataTable([
 $data
         ]);
 
         var options = {
-			curveType: 'function',
-	  		backgroundColor: {fill:'transparent'},
-          	title: 'Allegiance Player Playing Patterns (past 30 days)',
-          	vAxis: {title: '# of players', textPosition: 'none'},
-// BT - Added user's local timezone name.
-          	hAxis: {title: 'Hour (UTC$offset)', gridlines: {color: '#333', count: 24}, slantedText: true, slantedTextAngle: 90, showTextEvery: 1, textStyle: {color: 'black', fontName: 'Arial', fontSize: 12} }
+            curveType: 'function',
+              backgroundColor: {fill:'transparent'},
+              title: 'Allegiance Player Playing Patterns (past 30 days)',
+              vAxis: {title: '# of players', textPosition: 'none'},
+              hAxis: {title: 'Hour', gridlines: {color: '#333', count: 24}, slantedText: true, slantedTextAngle: 90, showTextEvery: 1, textStyle: {color: 'black', fontName: 'Arial', fontSize: 12} }
         }
 
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
         chart.draw(data, options);
       }
 
-// BT - Determine next squad game time in user's local timezone.
+      // BT - Setup drop down with timezone options.
       \$(document).ready(function()
       {
         var squadGameTime = new Date();
@@ -163,13 +171,126 @@ $data
         squadGameTime.setUTCSeconds(0);
       
         \$("#spanSquadGameTime").html(squadGameTime.toString());
-      });	
+        
+        // BT: Add timezone selection dropdown.
+        var currentTimezoneName = jstz.determine().name();
+        
+        var queryString = \$.parseQuerystring();
+        
+        if(typeof(queryString["timezoneName"]) != "undefined")
+            currentTimezoneName = queryString["timezoneName"];
+            
+        var currentTimezoneOffset;
+        
+        var \$ddlTimezone = \$("#ddlTimezone");
+        \$.each(jstz.olson.timezones, function(offsetMinutesList, zoneName)
+        {
+            var offsetMinutes = parseInt(offsetMinutesList.split(",")[0]);
+            
+            // Ignore any .5 timezones, they will just have to pick a neighbor timezone.
+            // .5 timezones messes up the date shifter, and the graph legend, etc.
+            if(offsetMinutes % 60 == 0)
+            {
+                // If the local machine is obeying DST, and the timezone has an olson DST start date
+                // we'll pretend that the timezone should be shown with the DST offset.
+                var isDST = false;
+                if(jstz.olson.dst_start_dates[zoneName] != null && isLocalTimeDST() == true)
+                {
+                    offsetMinutes += 60;
+                    isDST = true;
+                }
+                
+                var offsetHours = offsetMinutes / 60;
+                
+                var offsetString = "UTC";
+                if(offsetHours >= 0)
+                    offsetString += "+"
+                    
+                offsetString += offsetHours;
+                
+                var currentStringLength = offsetString.length;
+                for(var i = 0; i < (10 - currentStringLength); i++)
+                    offsetString += "&nbsp;";
+                
+                var selected = "";
+                if(currentTimezoneName == zoneName)
+                {
+                    selected = "selected"
+                    currentTimezoneOffset = offsetHours;
+                }
+                    
+                var isDSTString = "";
+                if(isDST == true)
+                    isDSTString = " (DST)"
+                
+                \$ddlTimezone.append(\$("<option " + selected + " />").val(offsetHours).html(offsetString + zoneName + isDSTString));
+                \$("#ddlTimezone option:last-child").attr("timezoneName", zoneName);
+            }
+        });
+        
+        \$ddlTimezone.change(function()
+        {
+            var offset = \$("#ddlTimezone option:selected").val();
+            var timezoneName = \$("#ddlTimezone option:selected").attr("timezoneName");
+            
+            window.location.href = window.location.href.substring(0, window.location.href.length - window.location.search.length) + "?offset=" + offset + "&timezoneName=" + escape(timezoneName);
+        });
+        
+        
+        updateSquadgameTime(currentTimezoneOffset, currentTimezoneName);
+        
+      });    
+      
+      
+      function updateSquadgameTime(timezoneOffsetHours, timezoneName)
+      {
+            var squadGameTime = new Date();
+            
+            for(var i = squadGameTime.getUTCDay(); i != 0; i = squadGameTime.getUTCDay())
+                squadGameTime.setUTCDate(squadGameTime.getUTCDate() + 1);
+            
+            squadGameTime.setUTCHours(19 + timezoneOffsetHours);
+            squadGameTime.setUTCMilliseconds(0);
+            squadGameTime.setUTCMinutes(0);
+            squadGameTime.setUTCSeconds(0);
+            
+            var month=new Array(12);
+            month[0]="January";
+            month[1]="February";
+            month[2]="March";
+            month[3]="April";
+            month[4]="May";
+            month[5]="June";
+            month[6]="July";
+            month[7]="August";
+            month[8]="September";
+            month[9]="October";
+            month[10]="November";
+            month[11]="December";
+            
+            var squadGameHours = squadGameTime.getUTCHours ( );
+            var squadGameMonth = month[squadGameTime.getUTCMonth()];
+            var squadGameDay = squadGameTime.getUTCDate ( );
+            var squadGameYear = squadGameTime.getUTCFullYear ( );
+            
+          
+            \$("#spanSquadGameTime").html(
+                squadGameMonth + " " +
+                squadGameDay + ", " +
+                squadGameYear + " " + squadGameHours + ":00:00   (" + timezoneName + ")");
+      }
 
     </script>
   </head>
   <body>
-    <div id="chart_div" style="width: 1100px; height: 500px;"></div>
-	<h3>Next Squad Game Time: <span id="spanSquadGameTime"></span></h3>
+  
+    <!-- BT: Cause the select to be centered. -->
+    <div style="display: inline-block; text-align: center;">
+        <div id="chart_div" style="width: 1100px; height: 500px;"></div>
+        <select id="ddlTimezone" style="font-family: monospace"></select>
+    </div>
+    
+    <h3>Next Squad Game Time: <span id="spanSquadGameTime"></span></h3>
 <pre>
 Special thanks to these contributors:
 BackTrak - client side timezone shifting
